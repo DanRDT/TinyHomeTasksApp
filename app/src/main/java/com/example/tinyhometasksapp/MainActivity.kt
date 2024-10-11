@@ -50,16 +50,16 @@ class MainActivity : AppCompatActivity() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
                 if (data != null) {
-                    Toast.makeText(this, "Not Null", Toast.LENGTH_SHORT).show()
-
                     val completedData = data.getStringExtra("completed")
                     val sortByData = data.getStringExtra("sort_by")
                     val sortDirectionData = data.getStringExtra("sort_direction")
                     if (completedData != null) completed = completedData
                     if (sortByData != null) sortBy = sortByData
                     if (sortDirectionData != null) sortDirection = sortDirectionData
+
+                    Toast.makeText(this, "Showing: $completed\nSorted by $sortBy in $sortDirection order", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Null", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Error: Couldn't Update Filters", Toast.LENGTH_SHORT).show()
                 }
 
                 updateTasks()

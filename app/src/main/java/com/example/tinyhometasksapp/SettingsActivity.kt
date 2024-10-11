@@ -34,17 +34,17 @@ class SettingsActivity : AppCompatActivity() {
 
         saveBtn = findViewById(R.id.saveSettingsBtn)
         saveBtn.setOnClickListener {
-            val intent = Intent()
+            val returnIntent = Intent()
 
             val selectedFilter = getSelectedRadioButtonText(filterRadioGroup)
-            val selectedSortBy = getSelectedRadioButtonText(filterRadioGroup)
-            val selectedSortDirection = getSelectedRadioButtonText(filterRadioGroup)
+            val selectedSortBy = getSelectedRadioButtonText(sortByRadioGroup)
+            val selectedSortDirection = getSelectedRadioButtonText(sortDirectionRadioGroup)
 
-            intent.putExtra("completed", selectedFilter)
-            intent.putExtra("sort_by", selectedSortBy)
-            intent.putExtra("sort_direction", selectedSortDirection)
+            returnIntent.putExtra("completed", selectedFilter)
+            returnIntent.putExtra("sort_by", selectedSortBy)
+            returnIntent.putExtra("sort_direction", selectedSortDirection)
 
-            setResult(RESULT_OK, intent)
+            setResult(RESULT_OK, returnIntent)
             finish()
         }
 
@@ -53,8 +53,7 @@ class SettingsActivity : AppCompatActivity() {
         val completed = intent.getStringExtra("completed")
         val sortBy = intent.getStringExtra("sort_by")
         val sortDirection = intent.getStringExtra("sort_direction")
-        Toast.makeText(this, sortBy, Toast.LENGTH_SHORT).show()
-        Toast.makeText(this, sortDirection, Toast.LENGTH_SHORT).show()
+
 
         val allString = getString(R.string.all)
         val completeString = getString(R.string.complete)
