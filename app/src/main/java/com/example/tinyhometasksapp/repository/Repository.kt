@@ -10,7 +10,7 @@ class Repository {
         return RetrofitInstance.api.getTask(id)
     }
 
-    suspend fun getTasks(completed: Boolean): Response<List<Task>> {
-        return RetrofitInstance.api.getTasks(completed)
+    suspend fun getTasks(completed: String, sortBy: String): Response<List<Task>> {
+        return RetrofitInstance.api.getTasks(completed, sortBy)
     }
 }

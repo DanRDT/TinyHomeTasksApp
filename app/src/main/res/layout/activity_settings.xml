@@ -43,20 +43,20 @@
             android:id="@+id/allRadioBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="All" />
+            android:text="@string/all" />
 
         <RadioButton
             android:id="@+id/completeRadioBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Complete" />
+            android:text="@string/complete" />
 
         <RadioButton
             android:id="@+id/incompleteRadioBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Incomplete" />
+            android:text="@string/incomplete" />
     </RadioGroup>
 
     <TextView
@@ -84,13 +84,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Due" />
+            android:text="@string/due" />
 
         <RadioButton
             android:id="@+id/createdRadioBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Created" />
+            android:text="@string/created" />
     </RadioGroup>
 
     <TextView
@@ -118,13 +118,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Ascending" />
+            android:text="@string/ascending" />
 
         <RadioButton
             android:id="@+id/descRadioBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Descending" />
+            android:text="@string/descending" />
     </RadioGroup>
 
     <Button

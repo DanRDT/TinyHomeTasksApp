@@ -16,7 +16,8 @@ interface TasksAPI {
 
     @GET("tasks")
     suspend fun getTasks(
-        @Query("completed") completed: Boolean
+        @Query("completed") completed: String,
+        @Query("sort_by") sortBy: String
     ): Response<List<Task>>
 
 }

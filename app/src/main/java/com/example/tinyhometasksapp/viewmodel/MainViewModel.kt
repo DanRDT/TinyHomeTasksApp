@@ -20,9 +20,9 @@ class MainViewModel(private val repository: Repository): ViewModel() {
         }
     }
 
-    fun getTasks(completed: Boolean) {
+    fun getTasks(completed: String, sortBy: String) {
         viewModelScope.launch {
-            val response = repository.getTasks(completed)
+            val response = repository.getTasks(completed, sortBy)
             myResponseTasks.value = response
         }
     }

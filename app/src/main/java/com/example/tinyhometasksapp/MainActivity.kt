@@ -25,6 +25,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private val tasksAdapter by lazy { TasksAdapter() }
 
+    private var completed = "All"
+    private var sortBy = "Due"
+    private var sortDirection = "Ascending"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -37,17 +41,39 @@ class MainActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
-        var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val repository = Repository()
+        val viewModelFactory = MainViewModelFactory(repository)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+        updateTasks()
+
+        val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
-//                doSomeOperations()
+                if (data != null) {
+                    Toast.makeText(this, "Not Null", Toast.LENGTH_SHORT).show()
+
+                    val completedData = data.getStringExtra("completed")
+                    val sortByData = data.getStringExtra("sort_by")
+                    val sortDirectionData = data.getStringExtra("sort_direction")
+                    if (completedData != null) completed = completedData
+                    if (sortByData != null) sortBy = sortByData
+                    if (sortDirectionData != null) sortDirection = sortDirectionData
+                } else {
+                    Toast.makeText(this, "Null", Toast.LENGTH_SHORT).show()
+                }
+
+                updateTasks()
             }
         }
 
         val settingsButton = findViewById<ImageButton>(R.id.settingsBtn)
         settingsButton.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
-            intent.putExtra("completed", "true");
+
+            intent.putExtra("completed", completed)
+            intent.putExtra("sort_by", sortBy)
+            intent.putExtra("sort_direction", sortDirection)
+
             resultLauncher.launch(intent)
         }
 
@@ -55,18 +81,8 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        val repository = Repository()
-        val viewModelFactory = MainViewModelFactory(repository)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
-        viewModel.getTasks(false)
-        viewModel.myResponseTasks.observe(this, Observer { response ->
-            if (response.isSuccessful) {
-                response.body()?.let {tasksAdapter.setData(it)}
-            } else {
-                Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
-            }
 
-        })
+
 
 
 
@@ -76,6 +92,27 @@ class MainActivity : AppCompatActivity() {
         tasksRecycleView = findViewById(R.id.TasksRecyclerView)
         tasksRecycleView.adapter = tasksAdapter
         tasksRecycleView.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun updateTasks() {
+        val sortByValue = if (sortBy == getString(R.string.due)) "dueDate" else "createdDate"
+        val sortDirectionValue = if (sortDirection == getString(R.string.ascending)) "+" else "-"
+
+        if (completed == getString(R.string.all)) {
+            // TODO
+        } else {
+            val completedValue = if (completed == getString(R.string.complete)) "true" else "false"
+
+            viewModel.getTasks(completedValue, sortDirectionValue + sortByValue)
+            viewModel.myResponseTasks.observe(this, Observer { response ->
+                if (response.isSuccessful) {
+                    response.body()?.let {tasksAdapter.setData(it)}
+                } else {
+                    Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
+                }
+            })
+        }
+
     }
 
 }

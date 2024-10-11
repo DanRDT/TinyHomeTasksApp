@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">TinyHomeTasksApp</string>
+
+    <!-- Settings Values -->
+    <string name="all">All</string>
+    <string name="complete">Complete</string>
+    <string name="incomplete">Incomplete</string>
+    <string name="due">Due</string>
+    <string name="created">Created</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
 </resources>
