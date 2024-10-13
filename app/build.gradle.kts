@@ -61,3 +61,22 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 }
 
+
+//kotlin {
+//    sourceSets {
+//        commonMain.dependencies {
+//            implementation("com.squareup.retrofit2:retrofit:2.9.0")
+//            implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+//            implementation("com.squareup.moshi:moshi:1.14.0")
+//            implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+//            implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+//            implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+//            implementation("androidx.compose.runtime:runtime-livedata:1.7.3")
+//            implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+//            implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
+//            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+//            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+//            implementation("io.github.cdimascio:dotenv-kotlin:6.4.2")
+//        }
+//    }
+//}

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -64,35 +63,20 @@ class SettingsActivity : AppCompatActivity() {
         val descendingString = getString(R.string.descending)
 
         when (completed) {
-            completeString -> {
-                filterRadioGroup.check(R.id.completeRadioBtn)
-            }
-            incompleteString -> {
-                filterRadioGroup.check(R.id.incompleteRadioBtn)
-            }
-            allString -> {
-                filterRadioGroup.check(R.id.allRadioBtn)
-            }
+            completeString -> filterRadioGroup.check(R.id.completeRadioBtn)
+            incompleteString -> filterRadioGroup.check(R.id.incompleteRadioBtn)
+            allString -> filterRadioGroup.check(R.id.allRadioBtn)
         }
 
         when (sortBy) {
-            dueString -> {
-                sortByRadioGroup.check(R.id.dueRadioBtn)
-            }
-            createdString -> {
-                sortByRadioGroup.check(R.id.createdRadioBtn)
-            }
+            dueString -> sortByRadioGroup.check(R.id.dueRadioBtn)
+            createdString -> sortByRadioGroup.check(R.id.createdRadioBtn)
         }
 
         when (sortDirection) {
-            ascendingString -> {
-                sortDirectionRadioGroup.check(R.id.ascRadioBtn)
-            }
-            descendingString -> {
-                sortDirectionRadioGroup.check(R.id.descRadioBtn)
-            }
+            ascendingString -> sortDirectionRadioGroup.check(R.id.ascRadioBtn)
+            descendingString -> sortDirectionRadioGroup.check(R.id.descRadioBtn)
         }
-
     }
 
     private fun setupRadioGroups() {

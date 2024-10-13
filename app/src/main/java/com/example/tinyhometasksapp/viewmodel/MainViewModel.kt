@@ -10,20 +10,20 @@ import retrofit2.Response
 
 class MainViewModel(private val repository: Repository): ViewModel() {
 
-    val myResponseTask: MutableLiveData<Response<Task>> = MutableLiveData()
-    val myResponseTasks: MutableLiveData<Response<List<Task>>> = MutableLiveData()
+    val responseTask: MutableLiveData<Response<Task>> = MutableLiveData()
+    val responseTasks: MutableLiveData<Response<List<Task>>> = MutableLiveData()
 
     fun getTask(id: String) {
         viewModelScope.launch {
             val response = repository.getTask(id)
-            myResponseTask.value = response
+            responseTask.value = response
         }
     }
 
     fun getTasks(completed: String, sortBy: String) {
         viewModelScope.launch {
             val response = repository.getTasks(completed, sortBy)
-            myResponseTasks.value = response
+            responseTasks.value = response
         }
     }
 }

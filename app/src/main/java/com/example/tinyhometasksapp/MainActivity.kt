@@ -17,17 +17,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tinyhometasksapp.ViewModel.MainViewModel
 import com.example.tinyhometasksapp.ViewModel.MainViewModelFactory
 import com.example.tinyhometasksapp.adapter.TasksAdapter
+import com.example.tinyhometasksapp.model.Task
+import retrofit2.Response
 import com.example.tinyhometasksapp.repository.Repository
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var tasksRecycleView: RecyclerView
     private lateinit var viewModel: MainViewModel
+    private lateinit var tasksObserver: Observer<Response<List<Task>>>
+
     private val tasksAdapter by lazy { TasksAdapter() }
+
 
     private var completed = "All"
     private var sortBy = "Due"
     private var sortDirection = "Ascending"
+
+    private var gettingAllQueryActive = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +51,28 @@ class MainActivity : AppCompatActivity() {
         val repository = Repository()
         val viewModelFactory = MainViewModelFactory(repository)
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+
+        var queryCount = 0
+        var prevResponseList: List<Task> = emptyList()
+
+        tasksObserver = Observer { response ->
+            if (response.isSuccessful) response.body()?.let {
+                if (gettingAllQueryActive) {
+                    queryCount++
+                    if (queryCount < 2) {
+                        prevResponseList = it
+                    } else {
+                        if (prevResponseList[0].completed or prevResponseList.isEmpty()) tasksAdapter.setData(it + prevResponseList)
+                        else tasksAdapter.setData(prevResponseList + it)
+
+                        queryCount = 0
+                        prevResponseList = emptyList()
+                    }
+                } else tasksAdapter.setData(it)
+            } else Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
+        }
+        viewModel.responseTasks.observe(this, tasksObserver)
+
         updateTasks()
 
         val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -58,9 +87,8 @@ class MainActivity : AppCompatActivity() {
                     if (sortDirectionData != null) sortDirection = sortDirectionData
 
                     Toast.makeText(this, "Showing: $completed\nSorted by $sortBy in $sortDirection order", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Error: Couldn't Update Filters", Toast.LENGTH_SHORT).show()
-                }
+                } else Toast.makeText(this, "Error: Couldn't Update Filters", Toast.LENGTH_SHORT).show()
+
 
                 updateTasks()
             }
@@ -77,15 +105,6 @@ class MainActivity : AppCompatActivity() {
             resultLauncher.launch(intent)
         }
 
-
-
-
-
-
-
-
-
-
     }
 
     private fun setupRecyclerView() {
@@ -97,20 +116,17 @@ class MainActivity : AppCompatActivity() {
     private fun updateTasks() {
         val sortByValue = if (sortBy == getString(R.string.due)) "dueDate" else "createdDate"
         val sortDirectionValue = if (sortDirection == getString(R.string.ascending)) "+" else "-"
+        val sortByQuery = sortDirectionValue + sortByValue
 
         if (completed == getString(R.string.all)) {
-            // TODO
-        } else {
-            val completedValue = if (completed == getString(R.string.complete)) "true" else "false"
+            gettingAllQueryActive = true
+            viewModel.getTasks("false", sortByQuery)
+            viewModel.getTasks("true", sortByQuery)
 
-            viewModel.getTasks(completedValue, sortDirectionValue + sortByValue)
-            viewModel.myResponseTasks.observe(this, Observer { response ->
-                if (response.isSuccessful) {
-                    response.body()?.let {tasksAdapter.setData(it)}
-                } else {
-                    Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
-                }
-            })
+        } else {
+            gettingAllQueryActive = false
+            val completedValue = if (completed == getString(R.string.complete)) "true" else "false"
+            viewModel.getTasks(completedValue, sortByQuery)
         }
 
     }
