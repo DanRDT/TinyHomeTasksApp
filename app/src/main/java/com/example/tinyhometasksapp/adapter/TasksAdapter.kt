@@ -1,11 +1,14 @@
 package com.example.tinyhometasksapp.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tinyhometasksapp.R
 import com.example.tinyhometasksapp.model.Task
@@ -25,8 +28,17 @@ class TasksAdapter (private val listener: TaskCardBtnsClickListener): RecyclerVi
 
         fun bind(task: Task) {
             editBtn.setOnClickListener { listener.onEditClick(task) }
-            deleteBtn.setOnClickListener { listener.onDeleteClick(task) }
+            deleteBtn.setOnClickListener {
+                listener.onDeleteClick(task)
+                disableCard()
+            }
 //            completedCheckBox.setOnClickListener { listener.onCompletedStatusClick(item) }
+        }
+
+        fun disableCard() {
+            editBtn.isEnabled = false
+            deleteBtn.isEnabled = false
+            completedCheckBox.isEnabled = false
         }
     }
 
@@ -51,5 +63,4 @@ class TasksAdapter (private val listener: TaskCardBtnsClickListener): RecyclerVi
         tasksList = newTasks
         notifyDataSetChanged()
     }
-
 }

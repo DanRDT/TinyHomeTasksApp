@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity(), TaskCardBtnsClickListener {
     private lateinit var tasksRecycleView: RecyclerView
     private lateinit var viewModel: MainViewModel
     private lateinit var tasksObserver: Observer<Response<List<Task>>>
+    private lateinit var deleteTaskObserver: Observer<Response<Unit>>
 
     private lateinit var taskPageLauncher: ActivityResultLauncher<Intent>
 
@@ -82,6 +83,12 @@ class MainActivity : AppCompatActivity(), TaskCardBtnsClickListener {
         viewModel.responseTasks.observe(this, tasksObserver)
 
         updateTasks()
+
+        deleteTaskObserver = Observer { response ->
+            if (response.isSuccessful) response.body()?.let { updateTasks() }
+            else Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
+        }
+        viewModel.responseDeleteTask.observe(this, deleteTaskObserver)
 
 
         val settingsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -168,5 +175,7 @@ class MainActivity : AppCompatActivity(), TaskCardBtnsClickListener {
     }
 
     override fun onDeleteClick(task: Task) {
+        viewModel.deleteTask(task.id)
+        Toast.makeText(this, "Deleting...", Toast.LENGTH_SHORT).show()
     }
 }
