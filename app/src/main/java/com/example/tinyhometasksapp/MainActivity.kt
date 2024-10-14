@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity(), TaskCardBtnsClickListener {
     private lateinit var viewModel: MainViewModel
     private lateinit var tasksObserver: Observer<Response<List<Task>>>
     private lateinit var deleteTaskObserver: Observer<Response<Unit>>
+    private lateinit var updateTaskObserver: Observer<Response<Task>>
 
     private lateinit var taskPageLauncher: ActivityResultLauncher<Intent>
 
@@ -66,7 +67,8 @@ class MainActivity : AppCompatActivity(), TaskCardBtnsClickListener {
                     if (queryCount < 2) {
                         prevResponseList = it
                     } else {
-                        if (prevResponseList[0].completed or prevResponseList.isEmpty()) tasksAdapter.setData(it + prevResponseList)
+                        if (prevResponseList.isEmpty()) tasksAdapter.setData(it)
+                        else if (prevResponseList[0].completed) tasksAdapter.setData(it + prevResponseList)
                         else tasksAdapter.setData(prevResponseList + it)
 
                         queryCount = 0
@@ -85,10 +87,16 @@ class MainActivity : AppCompatActivity(), TaskCardBtnsClickListener {
         updateTasks()
 
         deleteTaskObserver = Observer { response ->
-            if (response.isSuccessful) response.body()?.let { updateTasks() }
-            else Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
+            if (!response.isSuccessful) Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
+            updateTasks()
         }
         viewModel.responseDeleteTask.observe(this, deleteTaskObserver)
+
+        updateTaskObserver = Observer { response ->
+            if (!response.isSuccessful) Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
+            updateTasks()
+        }
+        viewModel.responseUpdateTask.observe(this, updateTaskObserver)
 
 
         val settingsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -177,5 +185,10 @@ class MainActivity : AppCompatActivity(), TaskCardBtnsClickListener {
     override fun onDeleteClick(task: Task) {
         viewModel.deleteTask(task.id)
         Toast.makeText(this, "Deleting...", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCompletedStatusClick(task: Task) {
+        viewModel.updateTask(task.id, Task(task.id, task.taskDescription, "${task.createdDate}Z", "${task.dueDate}Z", task.completed))
+        Toast.makeText(this, "Updating...", Toast.LENGTH_SHORT).show()
     }
 }

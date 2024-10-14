@@ -32,13 +32,23 @@ class TasksAdapter (private val listener: TaskCardBtnsClickListener): RecyclerVi
                 listener.onDeleteClick(task)
                 disableCard()
             }
-//            completedCheckBox.setOnClickListener { listener.onCompletedStatusClick(item) }
+            completedCheckBox.setOnClickListener {
+                task.completed = completedCheckBox.isChecked
+                listener.onCompletedStatusClick(task)
+                disableCard()
+            }
         }
 
         fun disableCard() {
             editBtn.isEnabled = false
             deleteBtn.isEnabled = false
             completedCheckBox.isEnabled = false
+        }
+
+        fun enableCard() {
+            editBtn.isEnabled = true
+            deleteBtn.isEnabled = true
+            completedCheckBox.isEnabled = true
         }
     }
 
@@ -55,6 +65,7 @@ class TasksAdapter (private val listener: TaskCardBtnsClickListener): RecyclerVi
         holder.completedCheckBox.setChecked(currentItem.completed).toString()
 
         holder.bind(currentItem)
+        holder.enableCard()
     }
 
     override fun getItemCount(): Int = tasksList.size
