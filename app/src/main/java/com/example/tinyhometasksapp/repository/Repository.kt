@@ -4,6 +4,7 @@ import com.example.tinyhometasksapp.api.RetrofitInstance
 import com.example.tinyhometasksapp.model.NewTask
 import com.example.tinyhometasksapp.model.Task
 import retrofit2.Response
+import retrofit2.http.Body
 
 class Repository {
 
@@ -17,5 +18,13 @@ class Repository {
 
     suspend fun createTask(task: NewTask): Response<Task> {
         return RetrofitInstance.api.createTask(task)
+    }
+
+    suspend fun updateTask(id: String, task: Task): Response<Task> {
+        return RetrofitInstance.api.updateTask(id, task)
+    }
+
+    suspend fun deleteTask(id: String): Response<Unit> {
+        return RetrofitInstance.api.deleteTask(id)
     }
 }

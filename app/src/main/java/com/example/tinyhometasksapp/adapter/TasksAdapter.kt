@@ -11,8 +11,7 @@ import com.example.tinyhometasksapp.R
 import com.example.tinyhometasksapp.model.Task
 import com.example.tinyhometasksapp.util.stringDateTimeToReadable
 
-class TasksAdapter (): RecyclerView.Adapter<TasksAdapter.TaskViewHolder>()
-{
+class TasksAdapter (private val listener: TaskCardBtnsClickListener): RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
 
     private var tasksList = emptyList<Task>()
 
@@ -23,6 +22,12 @@ class TasksAdapter (): RecyclerView.Adapter<TasksAdapter.TaskViewHolder>()
         val editBtn: ImageButton = itemView.findViewById(R.id.editBtn)
         val deleteBtn: ImageButton = itemView.findViewById(R.id.deleteBtn)
         val completedCheckBox: CheckBox = itemView.findViewById(R.id.completedCheckBox)
+
+        fun bind(task: Task) {
+            editBtn.setOnClickListener { listener.onEditClick(task) }
+            deleteBtn.setOnClickListener { listener.onDeleteClick(task) }
+//            completedCheckBox.setOnClickListener { listener.onCompletedStatusClick(item) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -32,13 +37,12 @@ class TasksAdapter (): RecyclerView.Adapter<TasksAdapter.TaskViewHolder>()
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val currentItem = tasksList[position]
-//        holder.id.text = currentItem.id.toString()
         holder.taskDescription.text = currentItem.taskDescription.toString()
         holder.dueDate.text = "Due: " + stringDateTimeToReadable(currentItem.dueDate)
         holder.createdDate.text = "Created: " + stringDateTimeToReadable(currentItem.createdDate)
         holder.completedCheckBox.setChecked(currentItem.completed).toString()
 
-
+        holder.bind(currentItem)
     }
 
     override fun getItemCount(): Int = tasksList.size

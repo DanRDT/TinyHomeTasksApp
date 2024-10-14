@@ -34,12 +34,13 @@ class TaskActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     private lateinit var dateTxt: EditText
     private lateinit var descriptionTxt: EditText
 
-
-    private lateinit var dateTime: LocalDateTime
+    private var task = Task("", "", "", "", false)
+    private lateinit var dueDateTime: LocalDateTime
     private var mode: String = ""
 
     private lateinit var viewModel: MainViewModel
     private lateinit var createTaskObserver: Observer<Response<Task>>
+    private lateinit var updateTaskObserver: Observer<Response<Task>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,13 +63,19 @@ class TaskActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             "create" -> {
                 mode = requestedAction
                 title.text = "Create"
-                dateTime = LocalDateTime.now()
+                dueDateTime = LocalDateTime.now()
             }
             "edit" -> {
                 mode = requestedAction
                 title.text = "Edit"
-                // TODO: fix dataTime
-                dateTime = LocalDateTime.now()
+                val passedTask = intent.getParcelableExtra("task", Task::class.java)
+                if (passedTask != null) {
+                    task = passedTask
+                    dueDateTime = LocalDateTime.parse(task.dueDate)
+                } else {
+                    Toast.makeText(this, "Error: Missing Task", Toast.LENGTH_SHORT).show()
+                    cancelPage()
+                }
             }
             else -> {
                 Toast.makeText(this, "Error: Invalid Mode", Toast.LENGTH_SHORT).show()
@@ -76,7 +83,7 @@ class TaskActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
             }
         }
 
-        updateDisplayDate()
+        updateDisplay()
 
         val viewModelFactory = MainViewModelFactory(Repository())
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
@@ -93,23 +100,40 @@ class TaskActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         }
         viewModel.responseCreateTask.observe(this, createTaskObserver)
 
+        updateTaskObserver = Observer { response ->
+            if (response.isSuccessful) response.body()?.let {
+                val returnIntent = Intent()
+                returnIntent.putExtra("return_action", "save")
+                setResult(RESULT_OK, returnIntent)
+                finish()
+            } else {
+                Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
+                resumePage()
+            }
+        }
+        viewModel.responseUpdateTask.observe(this, updateTaskObserver)
+
 
         saveBtn = findViewById(R.id.saveTaskBtn)
         saveBtn.setOnClickListener {
-            if (mode == "create") {
-                Toast.makeText(this, "Creating...", Toast.LENGTH_SHORT).show()
-                freezePage()
-                viewModel.createTask(NewTask(descriptionTxt.text.toString(), dateTimeObjectToISO8601(dateTime), false))
-            } else if (mode == "edit") {
-                // TODO
-            } else {
-                Toast.makeText(this, "Error: Invalid Mode", Toast.LENGTH_SHORT).show()
-                cancelPage()
+            when (mode) {
+                "create" -> {
+                    Toast.makeText(this, "Creating...", Toast.LENGTH_SHORT).show()
+                    freezePage()
+                    task.taskDescription = descriptionTxt.text.toString()
+                    viewModel.createTask(NewTask(task.taskDescription, task.dueDate, task.completed))
+                }
+                "edit" -> {
+                    Toast.makeText(this, "Updating...", Toast.LENGTH_SHORT).show()
+                    freezePage()
+                    task.taskDescription = descriptionTxt.text.toString()
+                    viewModel.updateTask(task.id, Task(task.id, task.taskDescription, "${task.createdDate}Z", task.dueDate, task.completed))
+                }
+                else -> {
+                    Toast.makeText(this, "Error: Invalid Mode", Toast.LENGTH_SHORT).show()
+                    cancelPage()
+                }
             }
-
-
-
-
         }
 
         cancelBtn = findViewById(R.id.cancelBtn)
@@ -126,20 +150,26 @@ class TaskActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         val datePickerDialog = DatePickerDialog(
             this,
             this,
-            dateTime.year,
-            dateTime.monthValue - 1, // needs 0-11
-            dateTime.dayOfMonth
+            dueDateTime.year,
+            dueDateTime.monthValue - 1, // needs 0-11
+            dueDateTime.dayOfMonth
         )
         datePickerDialog.show()
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
-        dateTime = LocalDateTime.of(year, month + 1 /* needs 1-12*/, dayOfMonth, 0, 0)
+        dueDateTime = LocalDateTime.of(year, month + 1 /* needs 1-12*/, dayOfMonth, 0, 0)
+        task.dueDate = dateTimeObjectToISO8601(dueDateTime)
+        updateDisplayDate()
+    }
+
+    private fun updateDisplay() {
+        descriptionTxt.setText(task.taskDescription)
         updateDisplayDate()
     }
 
     private fun updateDisplayDate() {
-        dateTxt.setText("${dateTime.monthValue}/${dateTime.dayOfMonth}/${dateTime.year}")
+        dateTxt.setText("${dueDateTime.monthValue}/${dueDateTime.dayOfMonth}/${dueDateTime.year}")
     }
 
     private fun cancelPage() {

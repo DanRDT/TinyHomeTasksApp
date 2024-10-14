@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -16,19 +17,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tinyhometasksapp.ViewModel.MainViewModel
 import com.example.tinyhometasksapp.ViewModel.MainViewModelFactory
+import com.example.tinyhometasksapp.adapter.TaskCardBtnsClickListener
 import com.example.tinyhometasksapp.adapter.TasksAdapter
 import com.example.tinyhometasksapp.model.Task
 import retrofit2.Response
 import com.example.tinyhometasksapp.repository.Repository
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TaskCardBtnsClickListener {
 
     private lateinit var tasksRecycleView: RecyclerView
     private lateinit var viewModel: MainViewModel
     private lateinit var tasksObserver: Observer<Response<List<Task>>>
 
-    private val tasksAdapter by lazy { TasksAdapter() }
+    private lateinit var taskPageLauncher: ActivityResultLauncher<Intent>
 
+    private val tasksAdapter by lazy { TasksAdapter(this) }
 
     private var completed = "All"
     private var sortBy = "Due"
@@ -111,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        val addLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        taskPageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
                 if (data != null) {
@@ -119,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                     if (returnAction != null) {
                         if (returnAction == "save") updateTasks()
                     } else Toast.makeText(this, "Error: No Return Value", Toast.LENGTH_SHORT).show()
-                } else Toast.makeText(this, "Error: Couldn't Update Filters", Toast.LENGTH_SHORT).show()
+                } else Toast.makeText(this, "Error: Couldn't Update Tasks", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -127,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         addButton.setOnClickListener {
             val intent = Intent(this, TaskActivity::class.java)
             intent.putExtra("requested_action", "create")
-            addLauncher.launch(intent)
+            taskPageLauncher.launch(intent)
         }
 
 
@@ -157,4 +160,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onEditClick(task: Task) {
+        val intent = Intent(this, TaskActivity::class.java)
+        intent.putExtra("requested_action", "edit")
+        intent.putExtra("task", task)
+        taskPageLauncher.launch(intent)
+    }
+
+    override fun onDeleteClick(task: Task) {
+    }
 }

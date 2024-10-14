@@ -14,6 +14,8 @@ class MainViewModel(private val repository: Repository): ViewModel() {
     val responseTask: MutableLiveData<Response<Task>> = MutableLiveData()
     val responseTasks: MutableLiveData<Response<List<Task>>> = MutableLiveData()
     val responseCreateTask: MutableLiveData<Response<Task>> = MutableLiveData()
+    val responseUpdateTask: MutableLiveData<Response<Task>> = MutableLiveData()
+    val responseDeleteTask: MutableLiveData<Response<Unit>> = MutableLiveData()
 
     fun getTask(id: String) {
         viewModelScope.launch {
@@ -33,6 +35,20 @@ class MainViewModel(private val repository: Repository): ViewModel() {
         viewModelScope.launch {
             val response = repository.createTask(task)
             responseCreateTask.value = response
+        }
+    }
+
+    fun updateTask(id: String, task: Task) {
+        viewModelScope.launch {
+            val response = repository.updateTask(id, task)
+            responseUpdateTask.value = response
+        }
+    }
+
+    fun deleteTask(id: String) {
+        viewModelScope.launch {
+            val response = repository.deleteTask(id)
+            responseDeleteTask.value = response
         }
     }
 }
