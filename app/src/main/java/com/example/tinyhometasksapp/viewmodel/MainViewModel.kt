@@ -3,6 +3,7 @@ package com.example.tinyhometasksapp.ViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tinyhometasksapp.model.NewTask
 import com.example.tinyhometasksapp.model.Task
 import com.example.tinyhometasksapp.repository.Repository
 import kotlinx.coroutines.launch
@@ -12,6 +13,7 @@ class MainViewModel(private val repository: Repository): ViewModel() {
 
     val responseTask: MutableLiveData<Response<Task>> = MutableLiveData()
     val responseTasks: MutableLiveData<Response<List<Task>>> = MutableLiveData()
+    val responseCreateTask: MutableLiveData<Response<Task>> = MutableLiveData()
 
     fun getTask(id: String) {
         viewModelScope.launch {
@@ -24,6 +26,13 @@ class MainViewModel(private val repository: Repository): ViewModel() {
         viewModelScope.launch {
             val response = repository.getTasks(completed, sortBy)
             responseTasks.value = response
+        }
+    }
+
+    fun createTask(task: NewTask) {
+        viewModelScope.launch {
+            val response = repository.createTask(task)
+            responseCreateTask.value = response
         }
     }
 }

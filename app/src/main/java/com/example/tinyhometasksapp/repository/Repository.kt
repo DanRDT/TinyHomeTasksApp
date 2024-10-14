@@ -1,6 +1,7 @@
 package com.example.tinyhometasksapp.repository
 
 import com.example.tinyhometasksapp.api.RetrofitInstance
+import com.example.tinyhometasksapp.model.NewTask
 import com.example.tinyhometasksapp.model.Task
 import retrofit2.Response
 
@@ -12,5 +13,9 @@ class Repository {
 
     suspend fun getTasks(completed: String, sortBy: String): Response<List<Task>> {
         return RetrofitInstance.api.getTasks(completed, sortBy)
+    }
+
+    suspend fun createTask(task: NewTask): Response<Task> {
+        return RetrofitInstance.api.createTask(task)
     }
 }

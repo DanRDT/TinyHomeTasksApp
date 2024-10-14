@@ -68,14 +68,20 @@ class MainActivity : AppCompatActivity() {
                         queryCount = 0
                         prevResponseList = emptyList()
                     }
-                } else tasksAdapter.setData(it)
+                } else {
+                    tasksAdapter.setData(it)
+
+                    queryCount = 0
+                    prevResponseList = emptyList()
+                }
             } else Toast.makeText(this, response.code().toString(), Toast.LENGTH_LONG).show()
         }
         viewModel.responseTasks.observe(this, tasksObserver)
 
         updateTasks()
 
-        val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+
+        val settingsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
                 if (data != null) {
@@ -86,11 +92,10 @@ class MainActivity : AppCompatActivity() {
                     if (sortByData != null) sortBy = sortByData
                     if (sortDirectionData != null) sortDirection = sortDirectionData
 
-                    Toast.makeText(this, "Showing: $completed\nSorted by $sortBy in $sortDirection order", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this, "Showing: $completed\nSorted by $sortBy in $sortDirection order", Toast.LENGTH_SHORT).show()
+                    updateTasks()
+
                 } else Toast.makeText(this, "Error: Couldn't Update Filters", Toast.LENGTH_SHORT).show()
-
-
-                updateTasks()
             }
         }
 
@@ -102,8 +107,29 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("sort_by", sortBy)
             intent.putExtra("sort_direction", sortDirection)
 
-            resultLauncher.launch(intent)
+            settingsLauncher.launch(intent)
         }
+
+
+        val addLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                if (data != null) {
+                    val returnAction = data.getStringExtra("return_action")
+                    if (returnAction != null) {
+                        if (returnAction == "save") updateTasks()
+                    } else Toast.makeText(this, "Error: No Return Value", Toast.LENGTH_SHORT).show()
+                } else Toast.makeText(this, "Error: Couldn't Update Filters", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        val addButton = findViewById<ImageButton>(R.id.addTaskBtn)
+        addButton.setOnClickListener {
+            val intent = Intent(this, TaskActivity::class.java)
+            intent.putExtra("requested_action", "create")
+            addLauncher.launch(intent)
+        }
+
 
     }
 

@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    implementation("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")
+
 }
 
 
